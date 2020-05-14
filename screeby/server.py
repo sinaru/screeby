@@ -1,4 +1,8 @@
+import logging
 from socketserver import BaseRequestHandler, TCPServer
+
+server_logger = logging.getLogger('screeby.Server')
+
 
 class ClientMessage:
     def __init__(self, message):
@@ -8,12 +12,13 @@ class ClientMessage:
     def type(self):
         return self.message_type
 
+
 class ServerRequestHandler(BaseRequestHandler):
     def handle(self):
-        print(f"Connected with: {self.client_address}")
+        server_logger.info(f"Connected with: {self.client_address}")
         msg = self.request.recv(8192)
         if not msg:
-            print(f"Connection closed with: {self.client_address}")
+            server_logger.info(f"Connection closed with: {self.client_address}")
 
         msg = ClientMessage(msg)
 
@@ -26,11 +31,12 @@ class ServerRequestHandler(BaseRequestHandler):
     def send_str(self, text):
         self.request.send(text.encode())
 
+
 class Server:
     def __init__(self, port):
+        server_logger.info('listening to connections...')
         TCPServer.allow_reuse_address = True
         self.serve = TCPServer(('', port), ServerRequestHandler)
 
     def run(self):
         self.serve.serve_forever()
-
