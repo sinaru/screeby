@@ -6,14 +6,14 @@ from types import SimpleNamespace
 
 class RemoteScreen:
     def __init__(self, window_title, video_source):
-        self._onMouseMove = None
-        self._onMouseClick = None
-        self._onMouseRelease = None
         self.window = tkinter.Tk()
         self.window.title(window_title)
         self.vid = Video(video_source)
         self.canvas = tkinter.Canvas(self.window, width=self.vid.width, height=self.vid.height)
         self.canvas.pack()
+        self._onMouseMove = None
+        self._onMouseClick = None
+        self._onMouseRelease = None
         self.canvas.bind('<Motion>', self.motion)
         self.canvas.bind('<Button-1>', self.click)
         self.canvas.bind('<ButtonRelease-1>', self.release)
