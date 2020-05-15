@@ -1,7 +1,7 @@
 import json
 import logging
 from screeby.remote_video import RemoteVideoConnection
-from screeby.network import sock
+from screeby.network import response
 
 client_logger = logging.getLogger('screeby.Client')
 
@@ -18,22 +18,10 @@ class Client:
         self.server_info = self.server_info()
 
     def server_info(self):
-        message = self.recv_response('SERVER_INFO')
+        message = response(self.server_addr(), 'SERVER_INFO')
         if not message:
             return None
 
         client_logger.info(f"{self.server_addr()} : Got server info: {message}")
         return json.loads(message)
 
-    def recv_response(self, message, decode=True):
-        with sock(self.server_addr()) as s:
-            s.send(message.encode())
-            message = s.recv(8192)
-
-        if not message:
-            return None
-
-        if decode:
-            return message.decode()
-
-        return message
