@@ -1,7 +1,7 @@
 import json
 from threading import Thread
 from screeby.network import sock
-
+from time import sleep
 
 class RemoteVideo(Thread):
     def __init__(self, address, logger=None, client_port = '5007'):
@@ -34,3 +34,4 @@ class RemoteVideo(Thread):
                 data = s.recv(1024)
                 if not data:
                     break
+                sleep(5)
