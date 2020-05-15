@@ -2,19 +2,22 @@ import tkinter
 import cv2
 import PIL.Image, PIL.ImageTk
 from types import SimpleNamespace
+from tkinter import Frame, Tk, Canvas
 
 
 class RemoteScreen:
     def __init__(self, window_title, video_source):
-        self.window = tkinter.Tk()
-        self.window.title(window_title)
         self.vid = Video(video_source)
-        self.canvas = tkinter.Canvas(self.window, width=self.vid.width, height=self.vid.height)
+        self.window = Tk()
+        self.window.title(window_title)
         self.window.wm_minsize(int(self.vid.width), int(self.vid.height))
-        self.canvas.pack()
+        self.frame = Frame(self.window)
+        self.frame.pack(fill="both", expand=True)
         self._onMouseMove = None
         self._onMouseClick = None
         self._onMouseRelease = None
+        self.canvas = Canvas(self.frame, width=self.vid.width, height=self.vid.height)
+        self.canvas.pack(fill="both", expand=True)
         self.canvas.bind('<Motion>', self.motion)
         self.canvas.bind('<Button-1>', self.click)
         self.canvas.bind('<ButtonRelease-1>', self.release)
@@ -73,10 +76,11 @@ class Video:
         self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
         self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
-    def get_frame(self):
+    def get_frame(self, scale_factor = None):
         if self.vid.isOpened():
             ret, frame = self.vid.read()
             if ret:
+                if scale_factor: frame = cv2.resize(frame, (0, 0), fx=scale_factor, fy=scale_factor)
                 return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             else:
                 return (ret, None)
