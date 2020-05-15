@@ -16,8 +16,8 @@ class RemoteScreen:
         self._mouse_move_callback = None
         self._mouse_click_callback = None
         self._mouse_release_callback = None
-        self.canvas = Canvas(self.frame, width=self.vid.width, height=self.vid.height)
-        self.canvas.pack(fill="both", expand=True)
+        self.canvas = Canvas(self.frame, width=self.vid.width, height=self.vid.height, cnf={'background': 'gray20'})
+        self.canvas.pack()
         self.canvas.bind('<Motion>', self.motion)
         self.canvas.bind('<Button-1>', self.click)
         self.canvas.bind('<ButtonRelease-1>', self.release)
