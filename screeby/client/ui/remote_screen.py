@@ -43,7 +43,6 @@ class RemoteScreen:
         ev = SimpleNamespace()
         ev.x = x
         ev.y = y
-        print(f"motion {ev.x}, {ev.y}")
         if self._mouse_move_callback: self._mouse_move_callback(ev)
 
     def click(self, event):
