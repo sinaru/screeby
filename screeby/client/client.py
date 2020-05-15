@@ -1,13 +1,13 @@
 import json
 import logging
-from screeby.remote_video import RemoteVideo
+from screeby.client.remote_video import RemoteVideo
 from screeby.network import response
-from screeby.ui.remote_screen import RemoteScreen
-client_logger = logging.getLogger('screeby.Client')
+from screeby.client.ui import RemoteScreen
 
 
 class Client:
     def __init__(self, ip, port):
+        self.client_logger = logging.getLogger('screeby.Client')
         self.ip = ip
         self.port = port
         self.video_in_port = '5007'
@@ -35,7 +35,7 @@ class Client:
         return RemoteScreen(f"Remote Screen: {self.ip}", f"udp://127.0.0.1:{self.video_in_port}")
 
     def connect_video(self):
-        thread = RemoteVideo(self.server_addr(), logger=client_logger, client_port=self.video_in_port)
+        thread = RemoteVideo(self.server_addr(), logger=self.client_logger, client_port=self.video_in_port)
         thread.start()
         return thread
 
@@ -45,5 +45,5 @@ class Client:
         if not message:
             return None
 
-        client_logger.info(f"{self.server_addr()} : Got server info: {message}")
+        self.client_logger.info(f"{self.server_addr()} : Got server info: {message}")
         return json.loads(message)
