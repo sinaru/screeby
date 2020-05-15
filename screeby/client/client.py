@@ -44,7 +44,9 @@ class Client:
     def render_remote_screen(self):
         s_width = self.s_info['resolution']['width']
         s_height = self.s_info['resolution']['height']
-        return RemoteScreen(f"Remote Screen: {self.ip}", f"udp://127.0.0.1:{self.video_in_port}", s_width, s_height)
+        return RemoteScreen(f"Remote Screen: {self.ip}", f"udp://127.0.0.1:{self.video_in_port}",
+                            s_width, s_height,
+                            play=True)
 
     def connect_video(self):
         thread = RemoteVideo(self.server_addr(), logger=self.client_logger, client_port=self.video_in_port)
