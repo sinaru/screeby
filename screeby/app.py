@@ -1,6 +1,7 @@
 import argparse
 from ipaddress import IPv4Address
 from screeby.server import Server
+from screeby.client import Client
 
 import logging
 import sys
@@ -20,7 +21,7 @@ def main():
     connect_ip, port = args.connect, args.port
 
     if connect_ip:
-        start_client(connect_ip, port)
+        start_client(str(connect_ip), port)
     else:
         start_server(port)
 
@@ -30,7 +31,8 @@ def start_server(port):
     server.run()
 
 def start_client(ip, port):
-    pass # todo implement
+    client = Client(ip, port)
+    client.run()
 
 
 if __name__ == "__main__":
