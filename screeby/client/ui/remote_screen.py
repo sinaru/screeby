@@ -10,6 +10,7 @@ class RemoteScreen:
         self.window.title(window_title)
         self.vid = Video(video_source)
         self.canvas = tkinter.Canvas(self.window, width=self.vid.width, height=self.vid.height)
+        self.window.wm_minsize(int(self.vid.width), int(self.vid.height))
         self.canvas.pack()
         self._onMouseMove = None
         self._onMouseClick = None
