@@ -1,6 +1,6 @@
 import argparse
 from ipaddress import IPv4Address
-from screeby.server import Server
+from screeby.server.server import Server
 from screeby.client import Client
 
 import logging
