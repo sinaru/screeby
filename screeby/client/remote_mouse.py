@@ -38,7 +38,6 @@ class RemoteMouse(Thread):
         self.click_data.append(event)
 
     def send_from_mouse_position(self, socket):
-
         click_msg = self.click_message()
         pos_msg = self.position_message()
         if pos_msg is None and click_msg is None:
@@ -64,8 +63,9 @@ class RemoteMouse(Thread):
         return f"move|{position.x}|{position.y}"
 
     def send_mouse_message(self, message, socket):
-        socket.send(str.encode(message))
-        if self.logger: self.logger.info("mouse data sent - ", message)
+        data = message.encode()
+        socket.send(data)
+        if self.logger: self.logger.info(f"mouse data sent - {data}")
         data = socket.recv(10)
         sleep(self.delay)
 

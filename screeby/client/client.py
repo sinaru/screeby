@@ -22,6 +22,7 @@ class Client:
         threads = []
         self.remote_video = self.connect_video()
         threads.append(self.remote_video)
+
         self.remote_mouse = self.connect_mouse()
         threads.append(self.remote_mouse)
 
@@ -41,7 +42,9 @@ class Client:
         pass
 
     def render_remote_screen(self):
-        return RemoteScreen(f"Remote Screen: {self.ip}", f"udp://127.0.0.1:{self.video_in_port}")
+        s_width = self.s_info['resolution']['width']
+        s_height = self.s_info['resolution']['height']
+        return RemoteScreen(f"Remote Screen: {self.ip}", f"udp://127.0.0.1:{self.video_in_port}", s_width, s_height)
 
     def connect_video(self):
         thread = RemoteVideo(self.server_addr(), logger=self.client_logger, client_port=self.video_in_port)
@@ -49,7 +52,7 @@ class Client:
         return thread
 
     def connect_mouse(self):
-        thread = RemoteMouse(self.server_addr())
+        thread = RemoteMouse(self.server_addr(), logger=self.client_logger)
         thread.start()
         return thread
 

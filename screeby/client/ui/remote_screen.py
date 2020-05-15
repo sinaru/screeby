@@ -6,17 +6,20 @@ from tkinter import Frame, Tk, Canvas
 
 
 class RemoteScreen:
-    def __init__(self, window_title, video_source):
-        self.vid = Video(video_source)
+    def __init__(self, window_title, video_source, width, height, play=True):
+        if play :
+            self.vid = Video(video_source)
+        else:
+            self.vid = None
         self.window = Tk()
         self.window.title(window_title)
-        self.window.wm_minsize(int(self.vid.width), int(self.vid.height))
+        self.window.wm_minsize(width, height)
         self.frame = Frame(self.window)
         self.frame.pack(fill="both", expand=True)
         self._mouse_move_callback = None
         self._mouse_click_callback = None
         self._mouse_release_callback = None
-        self.canvas = Canvas(self.frame, width=self.vid.width, height=self.vid.height, cnf={'background': 'gray20'})
+        self.canvas = Canvas(self.frame, width=width, height=height, cnf={'background': 'gray20'})
         self.canvas.pack()
         self.canvas.bind('<Motion>', self.motion)
         self.canvas.bind('<Button-1>', self.click)
@@ -24,7 +27,7 @@ class RemoteScreen:
         self.canvas.bind('<Button-3>', self.click)
         self.canvas.bind('<ButtonRelease-3>', self.release)
         self.delay = 15
-        self.update()
+        if self.vid : self.update()
 
     def update(self):
         ret, frame = self.vid.get_frame()
