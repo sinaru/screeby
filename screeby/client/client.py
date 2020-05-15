@@ -26,7 +26,7 @@ class Client:
         screen.wait_until_closed()
 
         for t in threads:
-            t.kill()
+            t.stop()
 
         for t in threads:
             t.join()
