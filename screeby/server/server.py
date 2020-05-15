@@ -1,9 +1,10 @@
 import logging
-from socketserver import BaseRequestHandler, TCPServer
+from socketserver import BaseRequestHandler, ThreadingTCPServer
 import json
 import subprocess
 from time import sleep
 from screeninfo import get_monitors
+from pynput.mouse import Button, Controller as MouseController
 
 server_logger = logging.getLogger('screeby.Server')
 network_logger = logging.getLogger('screeby.Network')
@@ -27,6 +28,9 @@ class ServerRequestHandler(BaseRequestHandler):
             elif msg['type'] == 'CONNECT_VIDEO':
                 self.establish_video(msg['to'])
 
+            elif msg['type'] == 'CONNECT_MOUSE':
+                self.connect_mouse()
+
     def establish_video(self, client_port):
         monitor = get_monitors()[0]
         client_ip = list(self.client_address)[0]
@@ -35,7 +39,8 @@ class ServerRequestHandler(BaseRequestHandler):
             scale=1366:768 -vcodec libx264 -pix_fmt yuv420p -tune zerolatency -preset ultrafast \
             -f mpegts udp://{client_ip}:{client_port}"
         video_streamer = subprocess.Popen(command_str.split())
-        server_logger.info(f"UDP Video stream started: {self.client_address} : sending video stream to client port({client_port})")
+        server_logger.info(
+            f"UDP Video stream started: {self.client_address} : sending video stream to client port({client_port})")
         while True:
             self.send_str('ok')
             response = self.recv_str()
@@ -45,6 +50,34 @@ class ServerRequestHandler(BaseRequestHandler):
                 break
 
             sleep(1)
+
+    def connect_mouse(self):
+        self.send_str('ok')
+        server_logger.info(f"Mouse connection started: {self.client_address}")
+        while True:
+            message = self.recv_str()
+            if not message:
+                break
+
+            mouse = MouseController()
+            key, *event_data = message.split('|')
+
+            if key == 'move':
+                x, y = event_data
+                mouse.position = (int(x), int(y))
+
+            if key == 'click':
+                name, pressed = event_data[0], self.to_bool(event_data[1])
+                if pressed:
+                    mouse.press(Button[name])
+                else:
+                    mouse.release(Button[name])
+
+            server_logger.info(f"MOUSE SIG: {message}")
+            self.send_str('ok')
+
+    def to_bool(self, text):
+        return True if text == 'true' else False
 
     def send_server_info(self):
         monitor = get_monitors()[0]
@@ -76,8 +109,11 @@ class ServerRequestHandler(BaseRequestHandler):
 class Server:
     def __init__(self, port):
         server_logger.info('listening to connections...')
-        TCPServer.allow_reuse_address = True
-        self.serve = TCPServer(('', port), ServerRequestHandler)
+        ThreadingTCPServer.allow_reuse_address = True
+        self.serve = ThreadingTCPServer(('', port), ServerRequestHandler)
 
     def run(self):
         self.serve.serve_forever()
+
+    def stop(self):
+        self.serve.shutdown()

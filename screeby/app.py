@@ -1,5 +1,6 @@
 import sys
 import pathlib
+
 pa = str(pathlib.Path(__file__).parent.parent.absolute())
 sys.path.append(pa)
 
@@ -10,6 +11,17 @@ from screeby.server.server import Server
 from screeby.client import Client
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+
+message = """
+    ########################################################
+    #### Srceeby
+    #### 
+    #### See Remote desktop, Control mouse
+    ########################################################
+"""
+
+print(message)
+
 
 def main():
     description = '''
@@ -25,18 +37,16 @@ def main():
     connect_ip, port = args.connect, args.port
 
     if connect_ip:
-        start_client(str(connect_ip), port)
+        runner = Client(str(connect_ip), port)
     else:
-        start_server(port)
+        runner = Server(port)
 
-
-def start_server(port):
-    server = Server(port)
-    server.run()
-
-def start_client(ip, port):
-    client = Client(ip, port)
-    client.run()
+    try:
+        runner.run()
+    except (KeyboardInterrupt, SystemExit):
+        print('Interrupted')
+        runner.stop()
+        exit(1)
 
 
 if __name__ == "__main__":
