@@ -4,7 +4,7 @@ import json
 import subprocess
 from time import sleep
 from screeninfo import get_monitors
-from pynput.mouse import Button, Controller as MouseController
+from screeby.server.mouse_receiver import MouseReceiver
 
 server_logger = logging.getLogger('screeby.Server')
 network_logger = logging.getLogger('screeby.Network')
@@ -54,30 +54,8 @@ class ServerRequestHandler(BaseRequestHandler):
     def connect_mouse(self):
         self.send_str('ok')
         server_logger.info(f"Mouse connection started: {self.client_address}")
-        while True:
-            message = self.recv_str()
-            if not message:
-                break
-
-            mouse = MouseController()
-            key, *event_data = message.split('|')
-
-            if key == 'move':
-                x, y = event_data
-                mouse.position = (int(x), int(y))
-
-            if key == 'click':
-                name, pressed = event_data[0], self.to_bool(event_data[1])
-                if pressed:
-                    mouse.press(Button[name])
-                else:
-                    mouse.release(Button[name])
-
-            server_logger.info(f"MOUSE SIG: {message}")
-            self.send_str('ok')
-
-    def to_bool(self, text):
-        return True if text == 'true' else False
+        recv = MouseReceiver(self.request, logger=server_logger)
+        recv.run()
 
     def send_server_info(self):
         monitor = get_monitors()[0]
