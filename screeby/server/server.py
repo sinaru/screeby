@@ -87,15 +87,15 @@ class ServerRequestHandler(BaseRequestHandler):
         }
         self.send_str(json.dumps(server_info))
 
-    def recv_data(self):
-        data = self.request.recv(8192)
+    def recv_data(self, size = 8192):
+        data = self.request.recv(size)
         if not data:
             return None
 
         return data
 
-    def recv_str(self):
-        data = self.recv_data()
+    def recv_str(self, size = 8192):
+        data = self.recv_data(size)
         if not data:
             return None
 

@@ -6,6 +6,7 @@ from time import sleep
 class RemoteVideo(Thread):
     def __init__(self, address, logger=None, client_port = '5007'):
         super().__init__()
+        self.alive_video_check_delay = 1 # seconds
         self.user_stop_signal = False
         self.client_port = client_port
         self.logger = logger
@@ -34,4 +35,4 @@ class RemoteVideo(Thread):
                 data = s.recv(1024)
                 if not data:
                     break
-                sleep(5)
+                sleep(self.alive_video_check_delay)
