@@ -11,7 +11,6 @@ from screeby.server.server import Server
 from screeby.client import Client
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-
 message = """
     ########################################################
     #### Srceeby

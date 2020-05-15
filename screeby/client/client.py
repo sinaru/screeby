@@ -52,7 +52,7 @@ class Client:
         return thread
 
     def connect_mouse(self):
-        thread = RemoteMouse(self.server_addr(), logger=self.client_logger)
+        thread = RemoteMouse(self.server_addr())
         thread.start()
         return thread
 
