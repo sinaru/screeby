@@ -1,6 +1,6 @@
 import json
 from threading import Thread
-from screeby.network import sock
+from screeby.network import tcp_sock
 from time import sleep
 
 class RemoteVideo(Thread):
@@ -19,7 +19,7 @@ class RemoteVideo(Thread):
         return self.user_stop_signal
 
     def run(self):
-        with sock(self.address) as s:
+        with tcp_sock(self.address) as s:
             js = json.dumps({'type': 'CONNECT_VIDEO', 'to': self.client_port})
             s.send(js.encode())
             data = s.recv(1024)

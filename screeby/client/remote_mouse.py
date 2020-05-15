@@ -1,5 +1,5 @@
 from threading import Thread
-from screeby.network import sock
+from screeby.network import tcp_sock
 import json
 from time import sleep
 from collections import deque
@@ -16,7 +16,7 @@ class RemoteMouse(Thread):
         self.delay = 1 / 120
 
     def run(self):
-        with sock(self.address) as s:
+        with tcp_sock(self.address) as s:
             js = json.dumps({'type': 'CONNECT_MOUSE'})
             s.send(js.encode())
             data = s.recv(16)

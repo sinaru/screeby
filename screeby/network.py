@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def sock(address, logger=None):
+def tcp_sock(address, logger=None):
     s = socket(AF_INET, SOCK_STREAM)
     try:
         s.connect(address)
@@ -14,7 +14,7 @@ def sock(address, logger=None):
 
 
 def response(address: tuple, message: str, decode: bool = True, logger=None):
-    with sock(address) as s:
+    with tcp_sock(address) as s:
         s.send(message.encode())
         message = s.recv(8192)
 
