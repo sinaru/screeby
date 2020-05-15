@@ -13,7 +13,7 @@ def sock(address, logger=None):
         s.close()
 
 
-def response(address: tuple, message: str, decode: bool = True):
+def response(address: tuple, message: str, decode: bool = True, logger=None):
     with sock(address) as s:
         s.send(message.encode())
         message = s.recv(8192)
@@ -22,6 +22,7 @@ def response(address: tuple, message: str, decode: bool = True):
         return None
 
     if decode:
-        return message.decode()
+        message = message.decode()
+        if logger: logger.info(f"{address} : Got response : {message}")
 
     return message
