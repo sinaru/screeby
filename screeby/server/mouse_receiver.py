@@ -18,7 +18,7 @@ class MouseReceiver:
                 message = d.decode()
                 key, *event_data = message.split('|')
 
-                if key == 'move':
+                if key == 'position':
                     x, y = event_data[0], event_data[1]
                     self.mouse.position = (int(x), int(y))
 

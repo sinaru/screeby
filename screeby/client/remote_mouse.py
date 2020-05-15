@@ -13,7 +13,7 @@ class RemoteMouse(Thread):
         self.click_data = deque()
         self.position = None
         self.user_stop_signal = False
-        self.delay = 1/120
+        self.delay = 1 / 120
 
     def run(self):
         with sock(self.address) as s:
@@ -55,12 +55,18 @@ class RemoteMouse(Thread):
         return f"click|{click.name}|{click.press}|"
 
     def position_message(self):
+        position = self.pop_position()
+        if position is None: return None
+        return f"position|{position.x}|{position.y}|"
+
+    def pop_position(self):
         position = self.position
         if position is None:
             return None
 
         self.position = None
-        return f"move|{position.x}|{position.y}|"
+
+        return position
 
     def send_mouse_message(self, message, socket):
         append_times = 32 - len(message)
