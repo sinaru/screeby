@@ -1,10 +1,14 @@
+import sys
+import pathlib
+pa = str(pathlib.Path(__file__).parent.parent.absolute())
+sys.path.append(pa)
+
 import argparse
+import logging
 from ipaddress import IPv4Address
 from screeby.server.server import Server
 from screeby.client import Client
 
-import logging
-import sys
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 def main():
