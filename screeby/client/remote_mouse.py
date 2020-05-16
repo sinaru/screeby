@@ -16,7 +16,7 @@ class RemoteMouse(Thread):
         self.delay = 1 / 120
 
     def run(self):
-        with tcp_sock(self.address) as s:
+        with tcp_sock(self.address, no_delay=True) as s:
             js = json.dumps({'type': 'CONNECT_MOUSE'})
             s.send(js.encode())
             data = s.recv(16)

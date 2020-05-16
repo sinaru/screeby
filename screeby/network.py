@@ -1,10 +1,13 @@
-from socket import socket, AF_INET, SOCK_STREAM
+import socket
 from contextlib import contextmanager
 
 
 @contextmanager
-def tcp_sock(address, logger=None):
-    s = socket(AF_INET, SOCK_STREAM)
+def tcp_sock(address, logger=None, no_delay=False):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if no_delay:
+        s.setsockopt(socket.SOL_TCP, socket.TCP_QUICKACK, 1)
+        s.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
     try:
         s.connect(address)
         if logger: logger.info(f"{address} : Connected")
