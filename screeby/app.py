@@ -13,7 +13,7 @@ from screeby.client import Client
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 message = """
     ########################################################
-    #### Srceeby
+    #### Screeby
     #### 
     #### See Remote desktop, Control mouse
     ########################################################
