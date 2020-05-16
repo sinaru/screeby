@@ -3,11 +3,13 @@ import cv2
 import PIL.Image, PIL.ImageTk
 from types import SimpleNamespace
 from tkinter import Frame, Tk, Canvas
+from threading import Thread
+from queue import Queue
 
 
 class RemoteScreen:
     def __init__(self, window_title, video_source, width, height, play=True):
-        if play :
+        if play:
             self.vid = Video(video_source)
         else:
             self.vid = None
@@ -27,12 +29,13 @@ class RemoteScreen:
         self.canvas.bind('<Button-3>', self.click)
         self.canvas.bind('<ButtonRelease-3>', self.release)
         self.delay = 15
-        if self.vid : self.update()
+        if self.vid: self.update()
 
     def update(self):
-        ret, frame = self.vid.get_frame()
+        if self.vid.stopped: return
 
-        if ret:
+        frame = self.vid.get_frame()
+        if frame is not None:
             self.photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(frame))
             self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
 
@@ -79,16 +82,34 @@ class Video:
         self.width = self.vid.get(cv2.CAP_PROP_FRAME_WIDTH)
         self.height = self.vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
-    def get_frame(self, scale_factor = None):
-        if self.vid.isOpened():
-            ret, frame = self.vid.read()
-            if ret:
-                if scale_factor: frame = cv2.resize(frame, (0, 0), fx=scale_factor, fy=scale_factor)
-                return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            else:
-                return (ret, None)
-        else:
-            return (None, None)
+        self.buffer = Queue(maxsize=1024)
+        self.stopped = False
+        t = Thread(target=self.update_buffer, args=())
+        t.daemon = True
+        t.start()
+
+    def update_buffer(self):
+        if not self.vid.isOpened(): return
+
+        while True:
+            if self.stopped:
+                return
+            if not self.buffer.full():
+                (grabbed, frame) = ret, frame = self.vid.read()
+                if not grabbed:
+                    self.stop()
+                    return
+                self.buffer.put(frame)
+
+    def stop(self):
+        self.stopped = True
+
+    def get_frame(self, scale_factor=None):
+        if self.buffer.qsize() == 0: return None
+
+        frame = self.buffer.get()
+        if scale_factor: frame = cv2.resize(frame, (0, 0), fx=scale_factor, fy=scale_factor)
+        return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     def __del__(self):
         if self.vid.isOpened():
