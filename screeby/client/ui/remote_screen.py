@@ -6,25 +6,28 @@ from tkinter import Frame, Tk, Canvas
 
 
 class RemoteScreen:
-    def __init__(self, window_title, video_source):
-        self.vid = Video(video_source)
+    def __init__(self, window_title, video_source, width, height, play=True):
+        if play :
+            self.vid = Video(video_source)
+        else:
+            self.vid = None
         self.window = Tk()
         self.window.title(window_title)
-        self.window.wm_minsize(int(self.vid.width), int(self.vid.height))
+        self.window.wm_minsize(width, height)
         self.frame = Frame(self.window)
         self.frame.pack(fill="both", expand=True)
-        self._onMouseMove = None
-        self._onMouseClick = None
-        self._onMouseRelease = None
-        self.canvas = Canvas(self.frame, width=self.vid.width, height=self.vid.height)
-        self.canvas.pack(fill="both", expand=True)
+        self._mouse_move_callback = None
+        self._mouse_click_callback = None
+        self._mouse_release_callback = None
+        self.canvas = Canvas(self.frame, width=width, height=height, cnf={'background': 'gray20'})
+        self.canvas.pack()
         self.canvas.bind('<Motion>', self.motion)
         self.canvas.bind('<Button-1>', self.click)
         self.canvas.bind('<ButtonRelease-1>', self.release)
         self.canvas.bind('<Button-3>', self.click)
         self.canvas.bind('<ButtonRelease-3>', self.release)
         self.delay = 15
-        self.update()
+        if self.vid : self.update()
 
     def update(self):
         ret, frame = self.vid.get_frame()
@@ -40,28 +43,28 @@ class RemoteScreen:
         ev = SimpleNamespace()
         ev.x = x
         ev.y = y
-        if self._onMouseMove: self._onMouseMove(ev)
+        if self._mouse_move_callback: self._mouse_move_callback(ev)
 
     def click(self, event):
         ev = SimpleNamespace()
         ev.name = 'left' if event.num == 1 else 'right'
         ev.press = 'true'
-        if self._onMouseClick: self._onMouseClick(ev)
+        if self._mouse_click_callback: self._mouse_click_callback(ev)
 
     def release(self, event):
         ev = SimpleNamespace()
         ev.name = 'left' if event.num == 1 else 'right'
         ev.press = 'false'
-        if self._onMouseRelease: self._onMouseRelease(ev)
+        if self._mouse_release_callback: self._mouse_release_callback(ev)
 
-    def onMouseMove(self, callback):
-        self._onMouseMove = callback
+    def on_mouse_move(self, callback):
+        self._mouse_move_callback = callback
 
-    def onMouseClick(self, callback):
-        self._onMouseClick = callback
+    def on_mouse_click(self, callback):
+        self._mouse_click_callback = callback
 
-    def onMouseRelease(self, callback):
-        self._onMouseRelease = callback
+    def on_mouse_release(self, callback):
+        self._mouse_release_callback = callback
 
     def wait_until_closed(self):
         self.window.mainloop()
