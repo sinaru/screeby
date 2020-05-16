@@ -32,11 +32,12 @@ class RemoteScreen:
         if self.vid: self.update()
 
     def update(self):
-        frame = self.vid.get_frame()
-        if frame is None: return
+        if self.vid.stopped: return
 
-        self.photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(frame))
-        self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
+        frame = self.vid.get_frame()
+        if frame is not None:
+            self.photo = PIL.ImageTk.PhotoImage(image=PIL.Image.fromarray(frame))
+            self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
 
         self.window.after(self.delay, self.update)
 
