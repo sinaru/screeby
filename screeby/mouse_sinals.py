@@ -1,0 +1,7 @@
+
+MOUSE_POSITION = b'\x01'
+MOUSE_CLICK    = b'\x02'
+MOUSE_RELEASE  = b'\x03'
+
+MOUSE_LEFT    = b'\x01'
+MOUSE_RIGHT   = b'\x03'

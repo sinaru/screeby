@@ -3,6 +3,7 @@ from screeby.network import tcp_sock
 import json
 from time import sleep
 from collections import deque
+from screeby.mouse_sinals import *
 
 
 class RemoteMouse(Thread):
@@ -38,26 +39,39 @@ class RemoteMouse(Thread):
         self.click_data.append(event)
 
     def send_from_mouse_position(self, socket):
-        click_msg = self.click_message()
-        pos_msg = self.position_message()
+        click_msg = self.click_data_bytes()
+        pos_msg = self.position_data()
         if pos_msg is None and click_msg is None:
             return
 
         if pos_msg is not None: self.send_mouse_message(pos_msg, socket)
         if click_msg is not None: self.send_mouse_message(click_msg, socket)
 
-    def click_message(self):
+    def click_data_bytes(self):
         if len(self.click_data) == 0:
             return None
 
+        data = MOUSE_CLICK
+
         click = self.click_data.popleft()
 
-        return f"click|{click.name}|{click.press}|"
+        if click.name == 'left':
+            data += MOUSE_LEFT
+        else:
+            data += MOUSE_RIGHT
 
-    def position_message(self):
+        if click.press:
+            data += MOUSE_CLICK
+        else:
+            data += MOUSE_RELEASE
+
+        return data + b'\x00\x00'
+
+    def position_data(self):
         position = self.pop_position()
         if position is None: return None
-        return f"position|{position.x}|{position.y}|"
+
+        return MOUSE_POSITION + (position.x).to_bytes(2, byteorder='big') + (position.y).to_bytes(2, byteorder='big')
 
     def pop_position(self):
         position = self.position
@@ -68,10 +82,7 @@ class RemoteMouse(Thread):
 
         return position
 
-    def send_mouse_message(self, message, socket):
-        append_times = 32 - len(message)
-        message += ' ' * append_times
-        data = message.encode()
+    def send_mouse_message(self, data, socket):
         socket.send(data)
         if self.logger: self.logger.info(f"mouse data sent - {data}")
         # data = socket.recv(1)
