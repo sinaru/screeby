@@ -14,7 +14,6 @@ class RemoteMouse(Thread):
         self.event_data = deque()
         self.position = None
         self.user_stop_signal = False
-        self.delay = 1 / 120
 
     def run(self):
         with tcp_sock(self.address, no_delay=True) as s:
@@ -30,7 +29,6 @@ class RemoteMouse(Thread):
 
             while not self.should_stop():
                 self.send_mouse_data(s)
-                sleep(self.delay)
 
     def set_position(self, event):
         self.event_data.append(event)
@@ -82,8 +80,6 @@ class RemoteMouse(Thread):
     def send_data(self, data, socket):
         socket.send(data)
         if self.logger: self.logger.info(f"mouse data sent - {data}")
-        # data = socket.recv(1)
-        sleep(self.delay)
 
     def stop(self):
         self.user_stop_signal = True
