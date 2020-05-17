@@ -11,7 +11,7 @@ class RemoteMouse(Thread):
         super().__init__()
         self.address = address
         self.logger = logger
-        self.click_data = deque()
+        self.event_data = deque()
         self.position = None
         self.user_stop_signal = False
         self.delay = 1 / 120
@@ -33,45 +33,42 @@ class RemoteMouse(Thread):
                 sleep(self.delay)
 
     def set_position(self, event):
-        self.position = event
+        self.event_data.append(event)
 
     def set_click_data(self, event):
-        self.click_data.append(event)
+        self.event_data.append(event)
 
     def send_mouse_data(self, socket):
-        click_msg = self.click_data_bytes()
-        pos_msg = self.position_data_bytes()
-        if pos_msg is None and click_msg is None:
+        msg = self.click_data_bytes()
+        if msg is None:
             return
 
-        if pos_msg is not None: self.send_mouse_message(pos_msg, socket)
-        if click_msg is not None: self.send_mouse_message(click_msg, socket)
+        if msg is not None: self.send_data(msg, socket)
 
     def click_data_bytes(self):
-        if len(self.click_data) == 0:
+        if len(self.event_data) == 0:
             return None
 
         data = MOUSE_CLICK
 
-        click = self.click_data.popleft()
+        event = self.event_data.popleft()
 
-        if click.name == 'left':
-            data += MOUSE_LEFT
+        if hasattr(event, 'name'):
+            if event.name == 'left':
+                data += MOUSE_LEFT
+            else:
+                data += MOUSE_RIGHT
+
+            if event.press:
+                data += MOUSE_CLICK
+            else:
+                data += MOUSE_RELEASE
+
+            return data + b'\x00\x00'
         else:
-            data += MOUSE_RIGHT
-
-        if click.press:
-            data += MOUSE_CLICK
-        else:
-            data += MOUSE_RELEASE
-
-        return data + b'\x00\x00'
-
-    def position_data_bytes(self):
-        position = self.pop_position()
-        if position is None: return None
-
-        return MOUSE_POSITION + (position.x).to_bytes(2, byteorder='big') + (position.y).to_bytes(2, byteorder='big')
+            return MOUSE_POSITION + \
+                   (event.x).to_bytes(2, byteorder='big') + \
+                   (event.y).to_bytes(2,byteorder='big')
 
     def pop_position(self):
         position = self.position
@@ -82,7 +79,7 @@ class RemoteMouse(Thread):
 
         return position
 
-    def send_mouse_message(self, data, socket):
+    def send_data(self, data, socket):
         socket.send(data)
         if self.logger: self.logger.info(f"mouse data sent - {data}")
         # data = socket.recv(1)
