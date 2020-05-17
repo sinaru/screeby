@@ -57,7 +57,7 @@ class RemoteMouse(Thread):
             else:
                 data += MOUSE_RIGHT
 
-            if event.press:
+            if event.press == 'true':
                 data += MOUSE_CLICK
             else:
                 data += MOUSE_RELEASE

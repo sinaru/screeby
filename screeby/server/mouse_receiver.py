@@ -16,15 +16,15 @@ class MouseReceiver:
                 break
 
             for d in self.chunks(data, 5):
-                key, *event_data = d
-
+                key, event_data = d[:1], d[1:]
                 if key == MOUSE_POSITION:
                     x = int.from_bytes(event_data[:2], byteorder='big')
                     y = int.from_bytes(event_data[2:4], byteorder='big')
+                    print(f"setting mouse {(x, y)}")
                     self.mouse.position = (x, y)
-                if key == MOUSE_CLICK:
-                    pressed = True if event_data[1] == MOUSE_CLICK else False
-                    if event_data[0] == MOUSE_LEFT:
+                if key == MOUSE_CLICK[:1]:
+                    pressed = True if event_data[1:2] == MOUSE_CLICK else False
+                    if event_data[:1] == MOUSE_LEFT:
                         name = 'left'
                     else:
                         name = 'right'
@@ -32,8 +32,6 @@ class MouseReceiver:
                         self.mouse.press(Button[name])
                     else:
                         self.mouse.release(Button[name])
-
-                if self.logger: self.logger.info(f"mouse {data}")
             sleep(self.delay)
 
     def chunks(self, lst, n):
