@@ -29,7 +29,7 @@ class RemoteMouse(Thread):
                 return
 
             while not self.should_stop():
-                self.send_from_mouse_position(s)
+                self.send_mouse_data(s)
                 sleep(self.delay)
 
     def set_position(self, event):
@@ -38,9 +38,9 @@ class RemoteMouse(Thread):
     def set_click_data(self, event):
         self.click_data.append(event)
 
-    def send_from_mouse_position(self, socket):
+    def send_mouse_data(self, socket):
         click_msg = self.click_data_bytes()
-        pos_msg = self.position_data()
+        pos_msg = self.position_data_bytes()
         if pos_msg is None and click_msg is None:
             return
 
@@ -67,7 +67,7 @@ class RemoteMouse(Thread):
 
         return data + b'\x00\x00'
 
-    def position_data(self):
+    def position_data_bytes(self):
         position = self.pop_position()
         if position is None: return None
 
