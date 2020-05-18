@@ -35,8 +35,7 @@ class ServerRequestHandler(BaseRequestHandler):
         monitor = get_monitors()[0]
         client_ip = list(self.client_address)[0]
         command_str = \
-            f"ffmpeg -an -loglevel info -video_size {monitor.width}x{monitor.height} -framerate 30 -f x11grab -i :0.0 " \
-            f"-threads 8 -vcodec libx264 -pix_fmt yuv420p -tune zerolatency -preset ultrafast " \
+            f"ffmpeg -threads 8 -vcodec libx264 -async 1 -vsync 1 -video_size {monitor.width}x{monitor.height} -framerate 30 -f x11grab -i :0.0 " \
             f"-f mpegts udp://{client_ip}:{client_port}"
         server_logger.info("CMD: " + command_str)
         video_streamer = subprocess.Popen(command_str.split())
