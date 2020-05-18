@@ -64,6 +64,8 @@ class RemoteMouse(Thread):
 
             return data + b'\x00\x00'
         else:
+            if event.x < 0 or event.y < 0: return None
+
             return MOUSE_POSITION + \
                    (event.x).to_bytes(2, byteorder='big') + \
                    (event.y).to_bytes(2,byteorder='big')
