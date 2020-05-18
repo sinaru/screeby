@@ -8,9 +8,7 @@ A simple screen sharing and control tool for your local network
 ### On Ubuntu
 
 ```
-sudo apt install python3-pip
-sudo apt install python3-tk
-sudo apt-get install python3-pil python3-pil.imagetk
+sudo apt install ffmpeg python3-pip python3-tk python3-pil python3-pil.imagetk
 ```
 ### pip packages
 
