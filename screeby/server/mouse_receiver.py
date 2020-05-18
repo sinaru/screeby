@@ -1,6 +1,6 @@
 from pynput.mouse import Button, Controller as MouseController
 from time import sleep
-from screeby.mouse_sinals import *
+from screeby.mouse_signals import *
 
 class MouseReceiver:
     def __init__(self, request, logger = None):

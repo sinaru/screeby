@@ -3,7 +3,7 @@ from screeby.network import tcp_sock
 import json
 from time import sleep
 from collections import deque
-from screeby.mouse_sinals import *
+from screeby.mouse_signals import *
 
 
 class RemoteMouse(Thread):
