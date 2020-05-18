@@ -97,6 +97,8 @@ class Video:
             if not self.buffer.full():
                 (grabbed, frame) = ret, frame = self.vid.read()
                 if not grabbed:
+                    self.vid.release()
+                    cv2.destroyAllWindows()
                     self.stop()
                     return
                 self.buffer.put(frame)
