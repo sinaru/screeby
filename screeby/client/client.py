@@ -2,6 +2,7 @@ import json
 import logging
 from screeby.client.remote_video import RemoteVideo
 from screeby.client.remote_mouse import RemoteMouse
+from screeby.client.remote_keyboard import RemoteKeyboard
 from screeby.network import response
 from screeby.client.ui import RemoteScreen
 
@@ -22,6 +23,9 @@ class Client:
         threads = []
         self.remote_video = self.connect_video()
         threads.append(self.remote_video)
+
+        self.remote_keyboard = self.connect_keyboard()
+        threads.append(self.remote_keyboard)
 
         self.remote_mouse = self.connect_mouse()
         threads.append(self.remote_mouse)
@@ -55,6 +59,11 @@ class Client:
 
     def connect_mouse(self):
         thread = RemoteMouse(self.server_addr())
+        thread.start()
+        return thread
+
+    def connect_keyboard(self):
+        thread = RemoteKeyboard(self.server_addr())
         thread.start()
         return thread
 
