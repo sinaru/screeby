@@ -5,6 +5,7 @@ import subprocess
 from time import sleep
 from screeninfo import get_monitors
 from screeby.server.mouse_receiver import MouseReceiver
+from screeby.server.keyboard_receiver import KeyboardReceiver
 
 server_logger = logging.getLogger('screeby.Server')
 network_logger = logging.getLogger('screeby.Network')
@@ -31,6 +32,10 @@ class ServerRequestHandler(BaseRequestHandler):
             elif msg['type'] == 'CONNECT_MOUSE':
                 self.connect_mouse()
 
+            elif msg['type'] == 'CONNECT_KEYBOARD':
+                self.connect_keyboard()
+
+
     def establish_video(self, client_port):
         monitor = get_monitors()[0]
         client_ip = list(self.client_address)[0]
@@ -55,6 +60,12 @@ class ServerRequestHandler(BaseRequestHandler):
         self.send_str('ok')
         server_logger.info(f"Mouse connection started: {self.client_address}")
         recv = MouseReceiver(self.request, logger=server_logger)
+        recv.run()
+
+    def connect_keyboard(self):
+        self.send_str('ok')
+        server_logger.info(f"Mouse connection started: {self.client_address}")
+        recv = KeyboardReceiver(self.request, logger=server_logger)
         recv.run()
 
     def send_server_info(self):
