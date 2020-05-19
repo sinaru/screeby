@@ -24,7 +24,7 @@ class ServerRequestHandler(BaseRequestHandler):
             msg = json.loads(msg)
 
             if msg['type'] == 'SERVER_INFO':
-                self.send_server_info()
+                return self.send_server_info()
 
             elif msg['type'] == 'CONNECT_VIDEO':
                 self.establish_video(msg['to'])
